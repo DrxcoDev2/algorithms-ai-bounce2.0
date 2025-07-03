@@ -59,5 +59,5 @@ for i, (w1, w2) in enumerate(start_pairs, 1):
     print(sentence)
 
 
-
+# Al final de model.py
 __all__ = ["trigram_probabilities", "vocab", "word_to_idx"]
