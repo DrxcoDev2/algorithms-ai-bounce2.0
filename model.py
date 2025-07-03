@@ -1,19 +1,23 @@
-from basic import * 
-import numpy as np  
+from basic import *
+import numpy as np
+import random
 
+# Matriz de trigramas
 trigram_counts = np.zeros((vocab_size, vocab_size, vocab_size))
 
 for i in range(len(corpus_indices) - 2):
-    w1, w2, w3 = corpus_indices[i], corpus_indices[i+1], corpus_indices[i+2]
+    w1, w2, w3 = corpus_indices[i], corpus_indices[i + 1], corpus_indices[i + 2]
     trigram_counts[w1, w2, w3] += 1
 
-
+# Suavizado
 trigram_counts += 0.01
 
-
+# Probabilidades condicionales
 trigram_probabilities = trigram_counts / trigram_counts.sum(axis=2, keepdims=True)
 
-#print("Bigram probabilities matrix: ", bigram_probabilities)
+# Funciones
+def safe_word_to_idx(word):
+    return word_to_idx[word] if word in word_to_idx else word_to_idx['<UNK>']
 
 def predict_next_word(w1, w2, trigram_probabilities):
     i1, i2 = safe_word_to_idx(w1), safe_word_to_idx(w2)
@@ -30,32 +34,30 @@ def predict_next_word(w1, w2, trigram_probabilities):
     next_idx = np.random.choice(range(vocab_size), p=probs)
     return idx_to_word[next_idx]
 
-
-def safe_word_to_idx(word):
-    return word_to_idx[word] if word in word_to_idx else word_to_idx['<UNK>']
-
-
 def generate_sentence(w1, w2, trigram_probabilities, length=10):
     sentence = [w1, w2]
     for _ in range(length):
         next_word = predict_next_word(w1, w2, trigram_probabilities)
         sentence.append(next_word)
-        w1, w2 = w2, next_word  
+        w1, w2 = w2, next_word
     return ' '.join(sentence)
 
 
-def top_predictions(w1, w2, trigram_probabilities, n=5):
-    i1, i2 = safe_word_to_idx(w1), safe_word_to_idx(w2)
-    probs = trigram_probabilities[i1, i2]
-    top_indices = np.argsort(probs)[::-1][:n]
-    return [(idx_to_word[i], probs[i]) for i in top_indices]
+bigrams = [(words[i], words[i + 1]) for i in range(len(words) - 1)]
+unique_bigrams = list(dict.fromkeys(bigrams))
 
-# TEST
-start_w1, start_w2 = "la", "ia"
+# Tomar hasta 10 bigramas
+if len(unique_bigrams) > 10:
+    start_pairs = random.sample(unique_bigrams, 10)
+else:
+    start_pairs = unique_bigrams
 
-print("Top 5 predicciones para ('artificial', 'intelligence'):")
-for word, prob in top_predictions(start_w1, start_w2, trigram_probabilities):
-    print(f"{word}: {prob:.3f}")
+# Generar texto para cada par
+for i, (w1, w2) in enumerate(start_pairs, 1):
+    print(f"\n[{i}] Generando texto iniciando con: ('{w1}', '{w2}')")
+    sentence = generate_sentence(w1, w2, trigram_probabilities, length=10)
+    print(sentence)
 
-print("\nOracion generada:")
-print(generate_sentence(start_w1, start_w2, trigram_probabilities, length=10))
+
+
+__all__ = ["trigram_probabilities", "vocab", "word_to_idx"]
