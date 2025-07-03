@@ -26,10 +26,18 @@ def generate_sentence(start_word, bigram_probabilities, length=5):
 
     for _ in range(length):
         next_word = predict_next_word(current_word, bigram_probabilities)
+        if len(sentence) >= 2 and next_word == sentence[-2]: #Si en la sentencia hay
+            break                                            #un bucle de palabras se rompe
         sentence.append(next_word)
         current_word = next_word
     
     return ' '.join(sentence)
+
+def top_predictions(word, bigram_probabilities, n=5):
+    idx = word_to_idx[word]
+    probs = bigram_probabilities[idx]
+    top_indices = np.argsort(probs)[::-1][:n]
+    return [(idx_to_word[i], probs[i]) for i in top_indices]
 
 # TEST
 current_word = "ai"
@@ -38,3 +46,5 @@ print(f"Given '{current_word}', the model predicts '{next_word}'.")
 
 generated_sentence = generate_sentence("artificial", bigram_probabilities, length=10)
 print(f"Generated sentence: {generated_sentence}")
+
+print("Top predictions for 'ai':", top_predictions("ai", bigram_probabilities))
