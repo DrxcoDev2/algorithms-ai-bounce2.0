@@ -1,9 +1,8 @@
 import numpy as np  
 from collections import Counter
 
-corpus = """Artificial Intelligence is the new electricity.
-Machine learning is the future of AI.
-AI is transforming industries and shaping the future."""
+
+corpus = input("")
 
 words = corpus.lower().split()
 

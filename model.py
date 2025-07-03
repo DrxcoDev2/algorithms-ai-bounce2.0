@@ -18,6 +18,11 @@ trigram_probabilities = trigram_counts / trigram_counts.sum(axis=2, keepdims=Tru
 def predict_next_word(w1, w2, trigram_probabilities):
     i1, i2 = word_to_idx[w1], word_to_idx[w2]
     probs = trigram_probabilities[i1, i2]
+
+    unk_idx = word_to_idx['<UNK>']
+    probs[unk_idx] = 0
+    probs /= probs.sum()
+
     next_idx = np.random.choice(range(vocab_size), p=probs)
     return idx_to_word[next_idx]
 
@@ -37,7 +42,7 @@ def top_predictions(w1, w2, trigram_probabilities, n=5):
     return [(idx_to_word[i], probs[i]) for i in top_indices]
 
 # TEST
-start_w1, start_w2 = "artificial", "intelligence"
+start_w1, start_w2 = "artificial", "inteligencia"
 
 print("Top 5 predicciones para ('artificial', 'intelligence'):")
 for word, prob in top_predictions(start_w1, start_w2, trigram_probabilities):
